@@ -24,6 +24,11 @@ void PrintStuffOut(RoomData rd)
     }
 }
 
+Console.WriteLine("WSMExporter Version 1.1");
+Console.WriteLine("Written by Nick");
+Console.WriteLine("Woodmansterne Audiovisual Department");
+Console.WriteLine("====================");
+
 if (args.Length == 0)
 {
     Console.WriteLine("Include the name of the .wsm you are converting.");
@@ -37,6 +42,7 @@ foreach (string arg in args)
         Console.WriteLine($"Input file {filename} must be a .wsm format.");
     }
 
+    Console.WriteLine($"Input file {filename}");
     string output_filename = filename.Substring(0, filename.Length - 4) + ".map";
     byte[] content = File.ReadAllBytes(filename);
 
@@ -57,6 +63,7 @@ foreach (string arg in args)
             exporter.TextureMap.Add("tools/bound_player", "dev/orange");
             exporter.DefaultTexture = "dev/grey";
             exporter.Export();
+            stream.Flush();
         }
 
         Console.WriteLine($"Created {output_filename}");

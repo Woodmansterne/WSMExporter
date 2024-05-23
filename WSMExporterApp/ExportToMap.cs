@@ -44,6 +44,12 @@ namespace WSMExporter
             }
         }
 
+        private static readonly HashSet<string> accepted_types = new()
+        {
+            "worldspawn",
+            "light"
+        };
+
         //use -1 for worldspawn
         private void WriteEnt(int eidx)
         {
@@ -51,13 +57,17 @@ namespace WSMExporter
             Entity? entity = !is_world ? RoomData.Entities[eidx] : null;
             string type = is_world ? "worldspawn" : entity.EntityType;
 
+            if (!accepted_types.Contains(type)) return;
             writer.Write($"// entity {entity_n}\n");
             entity_n++;
             writer.Write($"{{\n");
             writer.Write($"\"classname\" \"{type}\"\n");
             if (entity is not null)
             {
-                writer.Write($"\"origin\" \"{-entity.Position.X} {entity.Position.Y} 0\"\n");
+                writer.Write($"\"origin\" \"{-entity.Position.X} {entity.Position.Y} 64\"\n");
+                if (entity.Data.ContainsKey("radius")) writer.Write($"\"light\" \"{entity.Data["radius"]}\"\n");
+                if (entity.Data.ContainsKey("color_r") && entity.Data.ContainsKey("color_g") && entity.Data.ContainsKey("color_b"))
+                    writer.Write($"\"_color\" \"{(int)((double)entity.Data["color_r"] * 255)} {(int)((double)entity.Data["color_g"] * 255)} {(int)((double)entity.Data["color_b"] * 255)}\"\n");
             }
             //if (entity != null) WriteData(entity);
             WriteBrushes(eidx);
