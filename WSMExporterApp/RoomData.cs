@@ -20,7 +20,10 @@ namespace WSMExporter
 
     public enum Layer
     {
-        Floor, LowWall, Wall, Ceiling
+        Floor = 1,
+        LowWall = 2,
+        Wall = 3,
+        Ceiling = 4
     }
 
     public class Brush
@@ -149,13 +152,13 @@ namespace WSMExporter
             }
 
             int brush_count = bin.ReadInt32();
-            Brush[] brushes = new Brush[brush_count];
+            List<Brush> brushes = new();
             
             Console.WriteLine("[WS1 Room] brush count: {0}", brush_count);
 
             for (int i = 0; i < brush_count; i++)
             {
-                Brush brush = brushes[i] = new();
+                Brush brush = new();
 
                 byte point_count = bin.ReadByte();
                 if (point_count == 0xFF) //circle brush
@@ -272,6 +275,18 @@ namespace WSMExporter
                     //if (@params.EnableCRX3DZeroFloorUV && layer_idx == 1 && (wall_base == 0.0f && wall_height == 0.0f))
                     //  special_floor_uv = true;
                 }
+
+                switch (brush.Layer)
+                {
+                    case Layer.Floor:
+                    case Layer.LowWall:
+                    case Layer.Wall:
+                    case Layer.Ceiling:
+                        brushes.Add(brush);
+                        break;
+                    default:
+                        continue;
+                }
             }
 
             //Console.WriteLine("[WS1 Room] total vertices: {0}", total_vertex_count);
@@ -295,7 +310,7 @@ namespace WSMExporter
             }
 
             RoomData output = new();
-            output.Brushes = brushes;
+            output.Brushes = brushes.ToArray();
             output.Entities = entities;
             output.Materials = materials;
             return output;

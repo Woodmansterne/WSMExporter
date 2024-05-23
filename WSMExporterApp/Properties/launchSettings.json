@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WSMExporterApp": {
+      "commandName": "Project",
+      "commandLineArgs": "foster_network.wsm"
+    }
+  }
+}

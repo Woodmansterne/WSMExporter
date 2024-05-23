@@ -24,14 +24,45 @@ void PrintStuffOut(RoomData rd)
     }
 }
 
-string filename = "foster_network.wsm";
-byte[] content = File.ReadAllBytes(filename);
-
-RoomData? rd = RoomData.Load(content);
-if (rd is null)
+if (args.Length == 0)
 {
-    Console.WriteLine("oh no!");
-    return;
+    Console.WriteLine("Include the name of the .wsm you are converting.");
 }
 
-PrintStuffOut(rd);
+foreach (string arg in args)
+{
+    string filename = arg;
+    if (!filename.EndsWith(".wsm"))
+    {
+        Console.WriteLine($"Input file {filename} must be a .wsm format.");
+    }
+
+    string output_filename = filename.Substring(0, filename.Length - 4) + ".map";
+    byte[] content = File.ReadAllBytes(filename);
+
+    try
+    {
+        RoomData? rd = RoomData.Load(content);
+        if (rd is null)
+        {
+            Console.WriteLine("oh no!");
+            return;
+        }
+
+        using (FileStream stream = new(output_filename, FileMode.Create, FileAccess.Write))
+        {
+            MapExporter exporter = new();
+            exporter.Stream = stream;
+            exporter.RoomData = rd;
+            exporter.TextureMap.Add("tools/bound_player", "dev/orange");
+            exporter.DefaultTexture = "dev/grey";
+            exporter.Export();
+        }
+
+        Console.WriteLine($"Created {output_filename}");
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Failed to convert {output_filename}: {e}");
+    }
+}
